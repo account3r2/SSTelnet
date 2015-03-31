@@ -42,7 +42,7 @@ local function start()
 			local complete, msg = process(input, set)
 			local ip, _ = input:getpeername()
 			if not complete then
-				print("Error: " .. tostring(msg))
+				io.write("Error: " .. tostring(msg) .. "\n")
 			elseif complete and msg then
 				input:send(msg .. "\n")
 				io.write(ip, " <- " .. msg .. "\n")
