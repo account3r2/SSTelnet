@@ -35,7 +35,7 @@ local function process(client, set)
 		local line, err, part = client:receive()		-- Get client message.
 		if err and err == "closed" then		-- If the client has closed their connection.
 			set:remove(client)
-			io.write(ip .. ": Disconnecting...\n")
+			io.write(ip .. ": Disconnected.\n")
 			return true, nil, "disconnected"
 		elseif err then
 			io.write(ip .. ": Network Error: " .. tostring(err) .. "\n")
