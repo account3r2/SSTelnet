@@ -22,40 +22,28 @@
 
 local socket = require("socket")
 
+local eztcp = require("libs/EZTCP")
+local set = eztcp.set
+
 local bindTo = "*"
 local bindToPort = 2323
 
-local set = require("libs/set")
-
-local process = require("libs/telnetProcess")
-
-local function send(client, message)
-	local ip, _ = client:getpeername()
-	client:send(message .. "\n")
-	io.write(ip, " <- " .. message .. "\n")
-end
-
 local function start()
 	io.write("Opening server...\n")
-	server = assert(socket.bind(bindTo, bindToPort))
-	server:settimeout(1)
-	set:insert(server)
+	local server = eztcp.createServer(set, bindTo, bindToPort, 1)
 	io.write("Waiting for clients...\n")
 
 	while true do
-		local readable, _, error = socket.select(set)
-		for _, input in ipairs(readable) do
-			local complete, msg, status = process(input, set)
-			local ip, _ = input:getpeername()
-			if not complete then
-				io.write("Error: " .. tostring(msg) .. "\n")
-			elseif complete and status then
-				if status == "connected" then
-					send(msg, "Welcome to the serversquared Network!")
-				end
-			elseif complete and msg and not status then
-				send(input, msg)
+		local client, complete, msg, status = eztcp.process(set)
+		local ip, _ = client:getpeername()
+		if not complete then
+			io.write("Error: " .. tostring(msg) .. "\n")
+		elseif complete and status then
+			if status == "connected" then
+				eztcp.send(msg, "Welcome to the serversquared Network!")
 			end
+		elseif complete and msg and not status then
+			eztcp.send(client, msg)
 		end
 	end
 end
