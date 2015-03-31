@@ -25,6 +25,13 @@ setmetatable(set, {
 		insert = function (set, client)
 			table.insert(set, client)
 		end,
+		insertServer = function (set, server)
+			if not set["server"] then
+				set["server"] = server
+			else
+				return false, "Server already exists!"
+			end
+		end,
 		remove = function (set, client)
 			for k, v in pairs(set) do
 				if v == client then
