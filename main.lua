@@ -44,7 +44,7 @@ local function start()
 			if not complete then
 				print("Error: " .. tostring(msg))
 			elseif complete and msg then
-				input:send(msg)
+				input:send(msg .. "\n")
 				io.write(ip, " <- " .. msg .. "\n")
 			end
 		end
