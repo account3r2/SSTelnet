@@ -25,7 +25,7 @@ local function process(client, set)
 			local ip, _ = client:getpeername()
 			io.write(ip .. ": Connected.\n")
 			set:insert(client)
-			return true, nil, "connected"
+			return true, client, "connected"
 		else
 			io.write("Error processing new client: " .. tostring(err) .. "\n")		-- Print an error message if we couldn't process the client.
 			return false, "Error processing new client: " .. tostring(err)

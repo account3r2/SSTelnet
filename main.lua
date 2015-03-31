@@ -29,6 +29,12 @@ local set = require("libs/set")
 
 local process = require("libs/telnetProcess")
 
+local function send(client, message)
+	local ip, _ = client:getpeername()
+	client:send(message .. "\n")
+	io.write(ip, " <- " .. message .. "\n")
+end
+
 local function start()
 	io.write("Opening server...\n")
 	server = assert(socket.bind(bindTo, bindToPort))
@@ -39,13 +45,16 @@ local function start()
 	while true do
 		local readable, _, error = socket.select(set)
 		for _, input in ipairs(readable) do
-			local complete, msg = process(input, set)
+			local complete, msg, status = process(input, set)
 			local ip, _ = input:getpeername()
 			if not complete then
 				io.write("Error: " .. tostring(msg) .. "\n")
-			elseif complete and msg then
-				input:send(msg .. "\n")
-				io.write(ip, " <- " .. msg .. "\n")
+			elseif complete and status then
+				if status == "connected" then
+					send(msg, "Welcome to the serversquared Network!")
+				end
+			elseif complete and msg and not status then
+				send(input, msg)
 			end
 		end
 	end
