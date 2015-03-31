@@ -19,7 +19,7 @@
   \\========================================================================]]
 
 local function process(client, set)
-	if client == set["server"] then		-- set["server"] MUST be the server object.
+	if client == set[1] then		-- set[1] MUST be the server object.
 		local client, err = client:accept()		-- Let the new client connect to the server as an object.
 		if client then
 			local ip, _ = client:getpeername()

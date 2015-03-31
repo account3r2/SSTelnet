@@ -33,7 +33,7 @@ local function start()
 	io.write("Opening server...\n")
 	server = assert(socket.bind(bindTo, bindToPort))
 	server:settimeout(1)
-	set:insertServer(server)
+	set:insert(server)
 	io.write("Waiting for clients...\n")
 
 	while true do
