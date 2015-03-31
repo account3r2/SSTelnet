@@ -25,7 +25,7 @@ local function process(client, set)
 			local ip, _ = client:getpeername()
 			io.write(ip .. ": Connected.\n")
 			set:insert(client)
-			return true
+			return true, nil, "connected"
 		else
 			io.write("Error processing new client: " .. tostring(err) .. "\n")		-- Print an error message if we couldn't process the client.
 			return false, "Error processing new client: " .. tostring(err)
@@ -36,7 +36,7 @@ local function process(client, set)
 		if err and err == "closed" then		-- If the client has closed their connection.
 			io.write(ip .. ": Disconnecting...\n")
 			set:remove(client)
-			return true
+			return true, nil, "disconnected"
 		elseif err then
 			io.write(ip .. ": Network Error: " .. tostring(err) .. "\n")
 			set:remove(client)
