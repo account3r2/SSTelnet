@@ -47,20 +47,15 @@ local function start()
 		elseif msg == 2 then
 			io.write(ip .. ": Disconnected (timed out).\n")
 		elseif msg then
-			for i = 1, #msg, 1 do
-				if msg:byte(i) == 27 then
-					io.write(ip .. ": Sent escape sequence, ignoring.\n")
-					local msg = "Escape sequences are not allowed!"
-					eztcp.send.raw(client, msg)
-					io.write(ip .. " <- " .. msg .. "\n")
-					break
-				else
-					if i == #msg then
-						io.write(ip .. " -> " .. msg .. "\n")
-						eztcp.send.raw(client, msg)
-						io.write(ip .. " <- " .. msg .. "\n")
-					end
-				end
+			if msg:find(string.char(27)) then
+				io.write(ip .. ": Sent escape sequence, ignoring.\n")
+				local msg = "Escape sequences are not allowed!"
+				eztcp.send.raw(client, msg)
+				io.write(ip .. " <- " .. msg .. "\n")
+			else
+				io.write(ip .. " -> " .. msg .. "\n")
+				eztcp.send.raw(client, msg)
+				io.write(ip .. " <- " .. msg .. "\n")
 			end
 		else
 			io.write(ip .. ": Unknown error.\n")
