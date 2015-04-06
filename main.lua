@@ -35,21 +35,23 @@ local function start()
 
 	while true do
 		local client, msg, err, ip, port = eztcp.process(set)
+		ip = ip or "[Unknown]"
+		port = port or "[Unknown]"
 		if err then
-			io.write((ip or "Unknown") .. ": Error: " .. tostring(err) .. "\n")
+			io.write(ip .. ": Error: " .. tostring(err) .. "\n")
 		elseif msg == 0 then
-			io.write((ip or "Unknown") .. ": Connected" .. (port and (" on port " .. port) or "") .. ".\n")
+			io.write(ip .. ": Connected on port " .. port .. ".\n")
 			eztcp.send.raw(client, "Welcome to the serversquared Network!")
 		elseif msg == 1 then
-			io.write((ip or "Unknown") .. ": Disconnected.\n")
+			io.write(ip .. ": Disconnected.\n")
 		elseif msg == 2 then
-			io.write((ip or "Unknown") .. ": Disconnected (timed out).\n")
+			io.write(ip .. ": Disconnected (timed out).\n")
 		elseif msg then
-			io.write((ip or "Unknown") .. " -> " .. msg .. "\n")
+			io.write(ip .. " -> " .. msg .. "\n")
 			eztcp.send.raw(client, msg)
-			io.write((ip or "Unknown") .. " <- " .. msg .. "\n")
+			io.write(ip .. " <- " .. msg .. "\n")
 		else
-			io.write((ip or "Unknown") .. ": Unknown error.\n")
+			io.write(ip .. ": Unknown error.\n")
 		end
 	end
 end
