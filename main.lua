@@ -22,28 +22,35 @@
 
 local socket = require("socket")
 
-local eztcp = require("libs/EZTCP")
-local set = eztcp.set
+local eztcp = require("libs/eztcp")
+local set = eztcp.create.set()
 
 local bindTo = "*"
 local bindToPort = 2323
 
 local function start()
-	io.write("Opening server...\n")
-	local server = eztcp.createServer(set, bindTo, bindToPort, 1)
+	io.write("Creating server...\n")
+	eztcp.create.server(bindTo, bindToPort, set, 1)
 	io.write("Waiting for clients...\n")
 
 	while true do
-		local client, complete, msg, status = eztcp.process(set)
-		local ip, _ = client:getpeername()
-		if not complete then
-			io.write("Error: " .. tostring(msg) .. "\n")
-		elseif complete and status then
-			if status == "connected" then
-				eztcp.send(msg, "Welcome to the serversquared Network!")
-			end
-		elseif complete and msg and not status then
-			eztcp.send(client, msg)
+		local client, msg, err = eztcp.process(set)
+		local ip, port = (client:getpeername() or "")
+		if err then
+			io.write(ip .. ": Error: " .. tostring(err) .. "\n")
+		elseif msg == 0 then
+			io.write(ip .. ": Connected" .. (port and (" on port " .. port) or "") .. ".\n")
+			eztcp.send.raw(client, "Welcome to the serversquared Network!")
+		elseif msg == 1 then
+			io.write(ip .. ": Disconnected.\n")
+		elseif msg == 2 then
+			io.write(ip .. ": Disconnected (timed out).\n")
+		elseif msg then
+			io.write(ip .. " -> " .. msg .. "\n")
+			eztcp.send.raw(client, msg)
+			io.write(ip .. " <- " .. msg .. "\n")
+		else
+			io.write(ip .. ": Unknown error.\n")
 		end
 	end
 end
