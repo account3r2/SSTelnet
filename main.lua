@@ -25,8 +25,25 @@ local socket = require("socket")
 local eztcp = require("libs/eztcp")
 local set = eztcp.create.set()
 
+local startTime = os.date("%a %d %b at %X (UTC -08:00)")
+
+local ssptp = require("libs/ssptpi")
+
 local bindTo = "*"
 local bindToPort = 2323
+
+local function onClientConnect(client)
+	eztcp.send.raw(client, ssptp.encode(100))
+	eztcp.send.raw(client, ssptp.encode(101, "Welcome to the serversquared Network!"))
+	eztcp.send.raw(client, ssptp.encode(102))
+
+	eztcp.send.raw(client, ssptp.encode(103))
+	eztcp.send.raw(client, ssptp.encode(104, "This server was created on " .. startTime))
+	eztcp.send.raw(client, ssptp.encode(104, "This server is 100% experimental and not complete."))
+	eztcp.send.raw(client, ssptp.encode(105))
+
+	eztcp.send.raw(client, ssptp.encode(009, "Ready For Input."))
+end
 
 local function start()
 	io.write("Creating server...\n")
@@ -41,7 +58,7 @@ local function start()
 			io.write(ip .. ": Error: " .. tostring(err) .. "\n")
 		elseif msg == 0 then
 			io.write(ip .. ": Connected on port " .. port .. ".\n")
-			eztcp.send.raw(client, "Welcome to the serversquared Network!")
+			onClientConnect(client)
 		elseif msg == 1 then
 			io.write(ip .. ": Disconnected.\n")
 		elseif msg == 2 then
@@ -54,8 +71,10 @@ local function start()
 				io.write(ip .. " <- " .. msg .. "\n")
 			else
 				io.write(ip .. " -> " .. msg .. "\n")
+				local msg = ssptp.encode(250, "Bad Request.")
 				eztcp.send.raw(client, msg)
 				io.write(ip .. " <- " .. msg .. "\n")
+				eztcp.send.raw(client, ssptp.encode(009, "Ready For Input."))
 			end
 		else
 			io.write(ip .. ": Unknown error.\n")
