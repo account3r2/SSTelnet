@@ -58,6 +58,8 @@ local function start()
 			io.write(ip .. ": Error: " .. tostring(err) .. "\n")
 		elseif msg == 0 then
 			io.write(ip .. ": Connected on port " .. port .. ".\n")
+			eztcp.send.raw(client, "NOTICE AUTH :serversquared-LuaTelnetD initialized.")
+			eztcp.send.raw(client, "NOTICE * :**** If you are not an IRC Client, send \"join\" now! ****")	-- The IRC protocols haven't been implemented yet.
 			onClientConnect(client)
 		elseif msg == 1 then
 			io.write(ip .. ": Disconnected.\n")
