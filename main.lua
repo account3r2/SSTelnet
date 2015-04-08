@@ -27,6 +27,10 @@ local set = eztcp.create.set()
 
 local startTime = os.date("%a %d %b at %X (UTC -08:00)")
 
+local irc = require("libs/libluairc")
+
+local ircMode = {}
+
 local ssptp = require("libs/ssptpi")
 
 local bindTo = "*"
@@ -59,8 +63,7 @@ local function start()
 		elseif msg == 0 then
 			io.write(ip .. ": Connected on port " .. port .. ".\n")
 			eztcp.send.raw(client, "NOTICE AUTH :serversquared-LuaTelnetD initialized.")
-			eztcp.send.raw(client, "NOTICE * :**** If you are not an IRC Client, send \"join\" now! ****")	-- The IRC protocols haven't been implemented yet.
-			onClientConnect(client)
+			eztcp.send.raw(client, "NOTICE * :**** If you are not an IRC Client, send \"join\" now! ****")
 		elseif msg == 1 then
 			io.write(ip .. ": Disconnected.\n")
 		elseif msg == 2 then
@@ -73,10 +76,15 @@ local function start()
 				io.write(ip .. " <- " .. msg .. "\n")
 			else
 				io.write(ip .. " -> " .. msg .. "\n")
-				local msg = ssptp.encode(250, "Bad Request.")
-				eztcp.send.raw(client, msg)
-				io.write(ip .. " <- " .. msg .. "\n")
-				eztcp.send.raw(client, ssptp.encode(009, "Ready For Input."))
+				if ((msg:find("NICK") or msg:find("USER")) and ircMode[client] == nil) then
+					ircMode[client] = true
+					irc.add.client(client)
+					irc.process(client, msg)
+				elseif ircMode[client] then
+					irc.process(client, msg)
+				else
+					ircMode[client] = false
+				end
 			end
 		else
 			io.write(ip .. ": Unknown error.\n")
