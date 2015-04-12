@@ -77,6 +77,7 @@ local function start()
 			else
 				io.write(ip .. " -> " .. msg .. "\n")
 				if ((msg:find("NICK") or msg:find("USER")) and ircMode[client] == nil) then
+					io.write(ip .. ": Client is probably an IRC client, dropping into IRC mode.\n")
 					ircMode[client] = true
 					irc.add.client(client)
 					irc.process(client, msg)
@@ -84,6 +85,7 @@ local function start()
 					irc.process(client, msg)
 				else
 					ircMode[client] = false
+					eztcp.send.raw(client, ssptp.encode(200, "Server Not Yet Written (blame Niko)"))
 				end
 			end
 		else
